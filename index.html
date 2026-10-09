@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>vumble.dev</title>
+    <meta name="description" content="Web projects by Valentin Mumble" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>" />
+    <style>
+      :root {
+        --bg: #f6f5f1;
+        --card: #ffffff;
+        --text: #1d1d1b;
+        --muted: #77756e;
+        --border: #e4e2db;
+        --accent: #3b5bdb;
+        --chip-bg: #efede7;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161614;
+          --card: #1f1f1c;
+          --text: #ecebe6;
+          --muted: #9a988f;
+          --border: #2f2e2a;
+          --accent: #8ea6ff;
+          --chip-bg: #2a2925;
+          --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 4rem 1rem 3rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 6vw, 2.75rem);
+        letter-spacing: -0.02em;
+      }
+      .intro {
+        margin: 0.5rem 0 2.5rem;
+        color: var(--muted);
+      }
+      .projects {
+        display: grid;
+        gap: 0.75rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .project {
+        position: relative;
+        padding: 1.1rem 1.2rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      }
+      .project:hover,
+      .project:focus-within {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+        border-color: var(--accent);
+      }
+      .top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: inherit;
+        text-decoration: none;
+      }
+      /* The whole card opens the site, the source link stays clickable on top */
+      .name::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+      }
+      .name:focus-visible {
+        outline: none;
+      }
+      .year {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .description {
+        margin: 0.2rem 0 0.6rem;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .domain {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        color: var(--accent);
+      }
+      .language {
+        padding: 0.05rem 0.5rem;
+        border-radius: 6px;
+        background: var(--chip-bg);
+      }
+      .source {
+        position: relative;
+        z-index: 1;
+        margin-left: auto;
+        color: var(--muted);
+      }
+      .source:hover,
+      .source:focus-visible {
+        color: var(--accent);
+      }
+      footer {
+        margin-top: 2.5rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      footer a {
+        color: inherit;
+      }
+      footer a:hover {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>vumble.dev</h1>
+      <p class="intro">Things I made for the web.</p>
+
+      <ul class="projects" id="projects"></ul>
+
+      <footer>
+        <a href="https://old.vumble.dev">💾 Old projects</a> ·
+        <a href="https://github.com/ValentinMumble">GitHub</a>
+      </footer>
+    </main>
+
+    <script>
+      const USER = 'ValentinMumble';
+
+      // Shown when the GitHub API can't be reached (it allows 60 calls an hour per visitor)
+      const FALLBACK = [
+        { name: 'chords', description: '🎸', homepage: 'https://chords.vumble.dev', language: 'TypeScript', created_at: '2026-06-10', html_url: 'https://github.com/ValentinMumble/chords' },
+        { name: 'vatternrundan', description: '🇸🇪 Map of the Nantes → Stockholm trip for Vätternrundan 2026', homepage: 'https://vatternmumble.vumble.dev', language: 'Swift', created_at: '2026-06-10', html_url: 'https://github.com/ValentinMumble/vatternrundan' },
+        { name: 'twin-peaks-mood', description: '🌲🏔🏔🌲', homepage: 'https://twin-peaks-mood.vumble.dev', language: 'TypeScript', created_at: '2020-04-26', html_url: 'https://github.com/ValentinMumble/twin-peaks-mood' },
+      ];
+
+      async function loadRepos() {
+        try {
+          const response = await fetch(`https://api.github.com/users/${USER}/repos?per_page=100&type=owner`);
+          if (!response.ok) throw new Error(`GitHub API: ${response.status}`);
+          return await response.json();
+        } catch (error) {
+          return FALLBACK;
+        }
+      }
+
+      function element(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text) node.textContent = text;
+        return node;
+      }
+
+      function projectCard(repo) {
+        const card = element('li', 'project');
+
+        const top = element('div', 'top');
+        const name = element('a', 'name', repo.name);
+        name.href = repo.homepage;
+        top.append(name, element('span', 'year', repo.created_at.slice(0, 4)));
+        card.append(top);
+
+        if (repo.description) card.append(element('p', 'description', repo.description));
+
+        const meta = element('div', 'meta');
+        meta.append(element('span', 'domain', new URL(repo.homepage).host));
+        if (repo.language) meta.append(element('span', 'language', repo.language));
+        const source = element('a', 'source', 'Source ↗');
+        source.href = repo.html_url;
+        meta.append(source);
+        card.append(meta);
+
+        return card;
+      }
+
+      async function showProjects() {
+        const repos = await loadRepos();
+        // Web projects = public, not forked, not archived, with a website set
+        const webRepos = repos
+          .filter((repo) => !repo.fork && !repo.archived && !repo.private && repo.homepage)
+          .sort((first, second) => second.created_at.localeCompare(first.created_at));
+        document.getElementById('projects').append(...webRepos.map(projectCard));
+      }
+
+      showProjects();
+    </script>
+  </body>
+</html>
