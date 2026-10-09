@@ -209,8 +209,9 @@
       async function showProjects() {
         const repos = await loadRepos();
         // Web projects = public, not forked, not archived, with a website set
+        // (this homepage's own repo excluded)
         const webRepos = repos
-          .filter((repo) => !repo.fork && !repo.archived && !repo.private && repo.homepage)
+          .filter((repo) => !repo.fork && !repo.archived && !repo.private && repo.homepage && repo.name !== 'vumble.dev')
           .sort((first, second) => second.created_at.localeCompare(first.created_at));
         document.getElementById('projects').append(...webRepos.map(projectCard));
       }
