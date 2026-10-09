@@ -1,4 +1,4 @@
-# vumble.dev
+# 🧀 vumble
 
 Homepage of https://vumble.dev. A single static `index.html` that lists my web projects.
 
