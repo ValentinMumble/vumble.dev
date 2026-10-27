@@ -5,159 +5,282 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>vumble</title>
     <base target="_blank" />
-    <meta name="description" content="Web projects by Valentin Mumble" />
+    <meta name="description" content="Projects by Valentin Mumble" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧀</text></svg>" />
     <style>
+      /* Liquid glass: frosted panels over soft colour that drifts behind them */
       :root {
-        --bg: #f6f5f1;
-        --card: #ffffff;
-        --text: #1d1d1b;
-        --muted: #77756e;
-        --border: #e4e2db;
-        --accent: #3b5bdb;
-        --chip-bg: #efede7;
-        --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+        --page: #eef0f7;
+        --text: #14141a;
+        --muted: #4d4d5c;
+        --accent: #5b21b6;
+        --glass: rgba(255, 255, 255, 0.55);
+        --glass-strong: rgba(255, 255, 255, 0.78);
+        --glass-edge: rgba(255, 255, 255, 0.75);
+        --line: rgba(20, 20, 40, 0.08);
+        --shadow: 0 1px 1px rgba(20, 20, 40, 0.04), 0 12px 40px rgba(20, 20, 40, 0.12);
+        --blob-1: #c4b5fd;
+        --blob-2: #93c5fd;
+        --blob-3: #fbcfe8;
+        --blob-4: #a7f3d0;
+        --blob-opacity: 0.45;
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #161614;
-          --card: #1f1f1c;
-          --text: #ecebe6;
-          --muted: #9a988f;
-          --border: #2f2e2a;
-          --accent: #8ea6ff;
-          --chip-bg: #2a2925;
-          --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3);
+          --page: #0a0a12;
+          --text: #f4f4f7;
+          --muted: #b3b3c2;
+          --accent: #c4b5fd;
+          --glass: rgba(28, 28, 40, 0.55);
+          --glass-strong: rgba(48, 48, 64, 0.7);
+          --glass-edge: rgba(255, 255, 255, 0.14);
+          --line: rgba(255, 255, 255, 0.08);
+          --shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 12px 40px rgba(0, 0, 0, 0.5);
+          --blob-1: #5b21b6;
+          --blob-2: #1d4ed8;
+          --blob-3: #be185d;
+          --blob-4: #047857;
+          --blob-opacity: 0.35;
         }
       }
       * {
         box-sizing: border-box;
       }
       body {
+        min-height: 100vh;
         margin: 0;
-        background: var(--bg);
+        background: var(--page);
         color: var(--text);
         font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
         line-height: 1.5;
       }
+      /* The colour the glass blurs: four soft blobs, slowly drifting */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -20vmax;
+        z-index: -1;
+        background:
+          radial-gradient(40vmax 40vmax at 15% 20%, var(--blob-1), transparent 60%),
+          radial-gradient(35vmax 35vmax at 85% 15%, var(--blob-2), transparent 60%),
+          radial-gradient(40vmax 40vmax at 70% 85%, var(--blob-3), transparent 60%),
+          radial-gradient(30vmax 30vmax at 20% 80%, var(--blob-4), transparent 60%);
+        opacity: var(--blob-opacity);
+        filter: blur(60px);
+        animation: drift 40s ease-in-out infinite alternate;
+      }
+      @keyframes drift {
+        to {
+          transform: translate3d(2vmax, -1.5vmax, 0) rotate(4deg) scale(1.03);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        body::before {
+          animation: none;
+        }
+      }
       main {
-        max-width: 720px;
+        max-width: 1040px;
         margin: 0 auto;
-        padding: 4rem 1rem 3rem;
+        padding: 4.5rem 1.25rem 4rem;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem 2rem;
+        margin-bottom: 2.5rem;
       }
       h1 {
         margin: 0;
-        font-size: clamp(2rem, 6vw, 2.75rem);
-        letter-spacing: -0.02em;
+        font-size: clamp(3rem, 11vw, 6rem);
+        font-weight: 800;
+        line-height: 0.9;
+        letter-spacing: -0.045em;
       }
       .intro {
-        margin: 0.5rem 0 2.5rem;
+        margin: 0.75rem 0 0;
+        font-size: 1.05rem;
         color: var(--muted);
       }
+      /* Frosted glass, shared by the link pill and the sections */
+      nav,
+      section {
+        background: var(--glass);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid var(--glass-edge);
+        box-shadow: var(--shadow), inset 0 1px 0 var(--glass-edge);
+      }
+      nav {
+        display: flex;
+        gap: 1.25rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      nav a:hover,
+      nav a:focus-visible {
+        color: var(--accent);
+      }
+      section {
+        padding: 1.1rem 0.75rem 0.5rem;
+        border-radius: 28px;
+      }
+      section + section {
+        margin-top: 1.5rem;
+      }
+      h2 {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        margin: 0 0 0.25rem;
+        padding: 0 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .count {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        letter-spacing: 0;
+        color: var(--accent);
+      }
       .projects {
-        display: grid;
-        gap: 0.75rem;
         margin: 0;
         padding: 0;
         list-style: none;
       }
+      /* One row per project: year, name, description, then link and details */
       .project {
         position: relative;
-        padding: 1.1rem 1.2rem;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        display: grid;
+        grid-template-columns: 3.5rem minmax(8rem, 11rem) 1fr auto;
+        align-items: baseline;
+        gap: 0.25rem 1.5rem;
+        padding: 0.9rem 0.75rem;
+        border-bottom: 1px solid var(--line);
+        border-radius: 16px;
+        transition: background 0.2s ease, box-shadow 0.2s ease;
       }
+      .project:last-child {
+        border-bottom-color: transparent;
+      }
+      /* Hovered row rises as a lighter glass pill */
       .project:hover,
       .project:focus-within {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow);
-        border-color: var(--accent);
-      }
-      .top {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 1rem;
-      }
-      .name {
-        font-weight: 600;
-        font-size: 1.1rem;
-        color: inherit;
-        text-decoration: none;
-      }
-      /* The whole card opens the site, the source link stays clickable on top */
-      .name::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: 12px;
-      }
-      .name:focus-visible {
-        outline: none;
+        background: var(--glass-strong);
+        border-bottom-color: transparent;
+        box-shadow: inset 0 1px 0 var(--glass-edge), 0 4px 16px rgba(20, 20, 40, 0.08);
       }
       .year {
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 0.85rem;
         color: var(--muted);
       }
+      .name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: inherit;
+        text-decoration: none;
+      }
+      /* The whole row opens the project, the source link stays clickable on top */
+      .name::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+      }
+      .name:focus-visible {
+        outline: none;
+      }
       .description {
-        margin: 0.2rem 0 0.6rem;
+        margin: 0;
+        color: var(--muted);
       }
       .meta {
         display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.4rem 0.75rem;
-        font-size: 0.8rem;
-        color: var(--muted);
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.15rem;
+        text-align: right;
       }
-      .domain {
+      .link {
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.85rem;
+        white-space: nowrap;
         color: var(--accent);
       }
-      .language {
-        padding: 0.05rem 0.5rem;
-        border-radius: 6px;
-        background: var(--chip-bg);
+      .link::after {
+        content: " ↗";
+        display: inline-block;
+        transition: transform 0.15s ease;
+      }
+      .project:hover .link::after {
+        transform: translate(2px, -2px);
+      }
+      .details {
+        display: flex;
+        gap: 0.6rem;
+        font-size: 0.75rem;
+        color: var(--muted);
       }
       .source {
         position: relative;
         z-index: 1;
-        margin-left: auto;
         color: var(--muted);
       }
       .source:hover,
       .source:focus-visible {
         color: var(--accent);
       }
-      footer {
-        margin-top: 2.5rem;
-        font-size: 0.85rem;
-        color: var(--muted);
-      }
-      footer a {
-        color: inherit;
-      }
-      footer a:hover {
-        color: var(--accent);
+      @media (max-width: 640px) {
+        .project {
+          grid-template-columns: 3rem 1fr;
+        }
+        .description,
+        .meta {
+          grid-column: 2;
+        }
+        .meta {
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: baseline;
+          gap: 0.25rem 0.75rem;
+          text-align: left;
+        }
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>🧀 vumble</h1>
-      <p class="intro">Things I made.</p>
+      <header>
+        <div>
+          <h1>vumble</h1>
+          <p class="intro">🧀 Things I made, newest first.</p>
+        </div>
+        <nav>
+          <a href="https://github.com/ValentinMumble">GitHub</a>
+          <a href="https://old.vumble.dev">💾 Old projects</a>
+        </nav>
+      </header>
 
-      <ul class="projects" id="projects"></ul>
-
-      <footer>
-        <a href="https://old.vumble.dev">💾 Old projects</a> ·
-        <a href="https://github.com/ValentinMumble">GitHub</a>
-      </footer>
+      <section id="web">
+        <h2>On the web <span class="count"></span></h2>
+        <ul class="projects"></ul>
+      </section>
+      <section id="code">
+        <h2>Apps &amp; code <span class="count"></span></h2>
+        <ul class="projects"></ul>
+      </section>
     </main>
-
     <script>
       const USER = 'ValentinMumble';
 
@@ -185,30 +308,32 @@
         return node;
       }
 
-      function projectCard(repo) {
-        const card = element('li', 'project');
+      function projectRow(repo, showYear) {
+        const row = element('li', 'project');
+        // Like a printed index, the year only shows on the first project of that year
+        row.append(element('span', 'year', showYear ? repo.created_at.slice(0, 4) : ''));
 
-        const top = element('div', 'top');
         const name = element('a', 'name', repo.name);
         // Repos with no website (a Mac app, old school projects) link to GitHub instead
         name.href = repo.homepage || repo.html_url;
-        top.append(name, element('span', 'year', repo.created_at.slice(0, 4)));
-        card.append(top);
+        row.append(name);
 
-        if (repo.description) card.append(element('p', 'description', repo.description));
+        row.append(element('p', 'description', repo.description));
 
         const meta = element('div', 'meta');
-        if (repo.homepage) meta.append(element('span', 'domain', new URL(repo.homepage).host));
-        if (repo.language) meta.append(element('span', 'language', repo.language));
-        // Without a website the name already links to GitHub, so a Source link would repeat it
+        meta.append(element('span', 'link', repo.homepage ? new URL(repo.homepage).host : 'github.com'));
+        const details = element('span', 'details');
+        if (repo.language) details.append(element('span', 'language', repo.language));
+        // Without a website the row already opens GitHub, so a source link would repeat it
         if (repo.homepage) {
-          const source = element('a', 'source', 'Source ↗');
+          const source = element('a', 'source', 'source');
           source.href = repo.html_url;
-          meta.append(source);
+          details.append(source);
         }
-        card.append(meta);
+        meta.append(details);
+        row.append(meta);
 
-        return card;
+        return row;
       }
 
       async function showProjects() {
@@ -217,7 +342,19 @@
         const projects = repos
           .filter((repo) => !repo.fork && !repo.archived && !repo.private && repo.name !== 'vumble.dev')
           .sort((first, second) => second.created_at.localeCompare(first.created_at));
-        document.getElementById('projects').append(...projects.map(projectCard));
+        // Sites first, then repos with no website; a section with nothing in it stays hidden
+        for (const [id, inSection] of [
+          ['web', (repo) => repo.homepage],
+          ['code', (repo) => !repo.homepage],
+        ]) {
+          const section = document.getElementById(id);
+          const rows = projects
+            .filter(inSection)
+            .map((repo, index, list) => projectRow(repo, 0 === index || list[index - 1].created_at.slice(0, 4) !== repo.created_at.slice(0, 4)));
+          section.querySelector('.projects').append(...rows);
+          section.querySelector('.count').textContent = rows.length;
+          section.hidden = 0 === rows.length;
+        }
       }
 
       showProjects();
