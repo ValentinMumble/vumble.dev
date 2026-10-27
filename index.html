@@ -148,7 +148,7 @@
   <body>
     <main>
       <h1>🧀 vumble</h1>
-      <p class="intro">Things I made for the web.</p>
+      <p class="intro">Things I made.</p>
 
       <ul class="projects" id="projects"></ul>
 
@@ -190,18 +190,22 @@
 
         const top = element('div', 'top');
         const name = element('a', 'name', repo.name);
-        name.href = repo.homepage;
+        // Repos with no website (a Mac app, old school projects) link to GitHub instead
+        name.href = repo.homepage || repo.html_url;
         top.append(name, element('span', 'year', repo.created_at.slice(0, 4)));
         card.append(top);
 
         if (repo.description) card.append(element('p', 'description', repo.description));
 
         const meta = element('div', 'meta');
-        meta.append(element('span', 'domain', new URL(repo.homepage).host));
+        if (repo.homepage) meta.append(element('span', 'domain', new URL(repo.homepage).host));
         if (repo.language) meta.append(element('span', 'language', repo.language));
-        const source = element('a', 'source', 'Source ↗');
-        source.href = repo.html_url;
-        meta.append(source);
+        // Without a website the name already links to GitHub, so a Source link would repeat it
+        if (repo.homepage) {
+          const source = element('a', 'source', 'Source ↗');
+          source.href = repo.html_url;
+          meta.append(source);
+        }
         card.append(meta);
 
         return card;
@@ -209,12 +213,11 @@
 
       async function showProjects() {
         const repos = await loadRepos();
-        // Web projects = public, not forked, not archived, with a website set
-        // (this homepage's own repo excluded)
-        const webRepos = repos
-          .filter((repo) => !repo.fork && !repo.archived && !repo.private && repo.homepage && repo.name !== 'vumble.dev')
+        // Projects = public, not forked, not archived (this homepage's own repo excluded)
+        const projects = repos
+          .filter((repo) => !repo.fork && !repo.archived && !repo.private && repo.name !== 'vumble.dev')
           .sort((first, second) => second.created_at.localeCompare(first.created_at));
-        document.getElementById('projects').append(...webRepos.map(projectCard));
+        document.getElementById('projects').append(...projects.map(projectCard));
       }
 
       showProjects();
